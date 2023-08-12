@@ -3,5 +3,13 @@ terraform {
     azurerm = {
       source = "hashicorp/azurerm"
     }
+    tls = { 
+      source = "hashicorp/tls"
+
   }
+  local = {
+    source = "hashicorp/local"
+  }
+  }
+  
 }

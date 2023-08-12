@@ -122,3 +122,104 @@ variable "jumbbox_subnet_address_prefix" {
   default     = ["10.0.48.0/20"]
 }
 
+variable "jumbbox_domain_name_label" {
+  description = "domain name for the jumbox virtual machine"
+  default     = "kubebox"
+  type        = string
+}
+
+variable "jumbbox_vm_name" {
+  description = "Specifies the name of the jumpbox virtual machine"
+  default     = "kubeboxVM"
+  type        = string
+}
+
+variable "jumbbox_vm_public_ip" {
+  description = "(Optional) Specifies whether create a public IP for the virtual machine"
+  type = bool
+  default = false
+}
+
+variable "jumbbox_vm_size" {
+  description = "Specifies the size of the jumpbox virtual machine"
+  default     = "Standard_DS1_v2"
+  type        = string
+}
+
+variable "jumbbox_vm_os_disk_storage_account_type" {
+  description = "Specifies the storage account type of the os disk of the jumpbox virtual machine"
+  default     = "Premium_LRS"
+  type        = string
+
+  
+}
+
+variable "jumbbox_vm_os_disk_image" {
+  type        = map(string)
+  description = "Specifies the os disk image of the virtual machine"
+  default     = {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "18.04-LTS" 
+    version   = "latest"
+  }
+}
+
+
+variable "admin_username" {
+  description = "(Required) Specifies the admin username of the jumpbox virtual machine and AKS worker nodes."
+  type        = string
+  default     = "azadmin"
+}
+
+variable "ssh_public_key" {
+  description = "(Required) Specifies the SSH public key for the jumpbox virtual machine and AKS worker nodes."
+  type        = string
+  default = ""
+}
+
+variable "script_name" {
+  description = "(Required) Specifies the name of the custom script."
+  type        = string
+  default     = "jumbbox.sh"
+}
+
+variable "bastion_host_name" {
+  description = "(Optional) Specifies the name of the bastion host"
+  default     = "devshellBastionHost"
+  type        = string
+}
+
+variable "storage_account_kind" {
+  description = "(Optional) Specifies the account kind of the storage account"
+  default     = "StorageV2"
+  type        = string
+
+   validation {
+    condition = contains(["Storage", "StorageV2"], var.storage_account_kind)
+    error_message = "The account kind of the storage account is invalid."
+  }
+}
+
+variable "storage_account_tier" {
+  description = "(Optional) Specifies the account tier of the storage account"
+  default     = "Standard"
+  type        = string
+
+   validation {
+    condition = contains(["Standard", "Premium"], var.storage_account_tier)
+    error_message = "The account tier of the storage account is invalid."
+  }
+}
+
+
+variable "storage_account_replication_type" {
+  description = "(Optional) Specifies the replication type of the storage account"
+  default     = "LRS"
+  type        = string
+
+  validation {
+    condition = contains(["LRS", "ZRS", "GRS", "GZRS", "RA-GRS", "RA-GZRS"], var.storage_account_replication_type)
+    error_message = "The replication type of the storage account is invalid."
+  }
+}
