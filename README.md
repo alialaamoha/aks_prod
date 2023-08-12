@@ -1,6 +1,62 @@
 # Azure Kubernetes using terraform for production 
 Azure Kubernetes (Iac)  for production  
 
+components in the code 
+
+- Hub network with 2 subnets
+  - Azure Firewall 
+  - Azure Bastion
+- Spoke network 
+  - pod subnet
+  - service subnet
+  - additional 
+  - workload subnet (user vms)
+- private endpoint 
+- private dns zone 
+- private container regisry
+
+kubernetes components
+- external dns
+- flux
+- argo cd
+- Azuredevops agents
+- istio
+- promethuos 
+- grafana 
+- loki
+- jeager
+
+Messaging 
+- kafka
+- postgress
+- mongodb
+- rabbitmq
+- azure service bus
+
+additional
+- valut
+- harbor 
+
+
+- create a storage account to store terraform state 
+- create a resource group to categorize the resources for AKS project
+- create an active directory users and groups
+- create service account and permission to create users and appliances 
+- create a network
+- create subnet for the network 
+- create aks 
+- addons for aks
+  - external dns
+  - tls
+  - api gateways
+  - service mesh
+  - network security group
+- integration with aks
+- workload inside aks
+- logs/ tracing /etrics
+- gitops
+
+
 
 the components for the baseline archeticture 
 - Network topology
@@ -24,23 +80,7 @@ the components for the baseline archeticture
 
 
 
-- create a storage account to store terraform state 
-- create a resource group to categorize the resources for AKS project
-- create an active directory users and groups
-- create service account and permission to create users and appliances 
-- create a network
-- create subnet for the network 
-- create aks 
-- addons for aks
-  - external dns
-  - tls
-  - api gateways
-  - service mesh
-  - network security group
-- integration with aks
-- workload inside aks
-- logs/ tracing /etrics
-- gitops
+
 
 
 

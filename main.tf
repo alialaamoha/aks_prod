@@ -68,3 +68,19 @@ module "aks_network" {
   
    ]
 }
+
+
+module "vnet_peering" {
+  source = "./modules/virtualpeering"
+
+  vnet_1_name = var.hub_vnet_name
+  vnet_1_rg = azurerm_resource_group.aks-rg.name
+  vnet_1_id = module.hub_network.vnet_id
+
+  vnet_2_name = var.aks_vnet_name
+  vnet_2_rg = azurerm_resource_group.aks-rg.name
+  vnet_2_id = module.aks_network.vnet_id
+
+  peering_name_1_to_2 = "${var.hub_vnet_name}To${var.aks_vnet_name}"
+  peering_name_2_to_1 = "${var.aks_vnet_name}To${var.hub_vnet_name}"
+}
