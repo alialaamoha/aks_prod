@@ -17,7 +17,6 @@ resource "azurerm_bastion_host" "bastion_host" {
   location            = var.location
   resource_group_name = var.resource_group_name
   tags                = var.tags
-
   ip_configuration {
     name                 = "configuration"
     subnet_id            = var.subnet_id

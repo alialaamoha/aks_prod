@@ -10,6 +10,9 @@ terraform {
   local = {
     source = "hashicorp/local"
   }
+  azuread = {
+    source ="hashicorp/azuread"
+  }
   }
   
 }

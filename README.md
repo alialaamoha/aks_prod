@@ -1,4 +1,28 @@
 # Azure Kubernetes using terraform for production 
+
+Azure platform
+AKS  latest version 
+System and User node pool separation
+AKS-managed Azure AD
+Azure AD-backed Kubernetes RBAC (local user accounts disabled)
+Managed Identities
+Azure CNI
+Azure Monitor for containers
+Azure Virtual Networks (hub-spoke)
+Azure Firewall managed egress
+Azure Application Gateway (WAF)
+AKS-managed Internal Load Balancers
+In-cluster OSS components
+Azure Workload Identity [AKS-managed add-on]
+Flux GitOps Operator [AKS-managed extension]
+ImageCleaner (Eraser) [AKS-managed add-on]
+Kubernetes Reboot Daemon
+Secrets Store CSI Driver for Kubernetes [AKS-managed add-on]
+Traefik Ingress Controller
+
+
+
+
 Azure Kubernetes (Iac)  for production  
 
 components in the code 
@@ -37,6 +61,11 @@ additional
 - valut
 - harbor 
 
+connect to the virtual machine with bastion host 
+
+```
+az network bastion ssh --name "<BastionName>" --resource-group "<ResourceGroupName>" --target-ip-addres "<VMIPAddress>" --auth-type "ssh-key" --username "<Username>" --ssh-key "<Filepath>"
+```
 
 - create a storage account to store terraform state 
 - create a resource group to categorize the resources for AKS project
@@ -55,34 +84,6 @@ additional
 - workload inside aks
 - logs/ tracing /etrics
 - gitops
-
-
-
-the components for the baseline archeticture 
-- Network topology
-    A hub-spoke network  deployed in separate virtual networks connected through peering.
-    
-   - #### A hub-spoke network   
-     hub virtual network hosts shared Azure services. Workloads hosted in the spoke virtual networks can use these services. The hub virtual network is the central point of connectivity for cross-premises networks.
-
-     The hub virtual network is the central point of connectivity and observability. A hub always contains an Azure Firewall with global firewall policies defined by your central IT teams to enforce organization wide firewall policy, Azure Bastion, a gateway subnet for VPN connectivity, and Azure Monitor for network observability
-
-   - #### Spoke virtual networks. 
-    Spoke virtual networks isolate and manage workloads separately in each spoke. Each workload can include multiple tiers, with multiple subnets connected through Azure load balancers. Spokes can exist in different subscriptions and represent different environments, such as Production and Non-production.
-
-   - #### Virtual network connectivity (Peering).
-
-   - #### Azure Bastion host.
-   - #### Azure Firewall
-   - #### Azure VPN Gateway
-
-
-
-
-
-
-
-
 
 ## Core architecture components
 AKS Private Cluster
@@ -114,53 +115,3 @@ Azure CosmosDb
 Azure MongoDb
 Azure Redis Cache
 
-
-
-AKS Baseline Automation
-
-- ### The Infrastructure team 
-  Automating the deployment of AKS and the Azure resources that it depends on, such as ACR, KeyVault, Managed Identities, Log Analytics, etc.
-
-
-- ### The Networking team
-  Networking components of the solution such as Vnets, DNS, App Gateways, etc
-
-- ## The Application team
-  Automating the deployment of their application services into AKS and managing their release to production using a Blue/Green or Canary approach.
-
-  these teams can accomplish their goals by packaging their service using helm and deploying them either through a CI/CD pipeline such as GitHub Actions or a GitOp tools such as Flux or ArgoCD.
-
-
-- ### The Shared-Services team
-
-  Responsible for maintaining the overall health of the AKS clusters and the common components that run on them, such as monitoring,networking, security and other utility services.
-
-
-  AKS add-ons such 
-   - Azure Active Directory pod-managed identities in Azure Kubernetes
-   - Secret Store CSI Driver Provider, 
-   - 3rd party such as Prisma defender or Splunk daemonset
-   - open source such as KEDA, 
-   - External-dns 
-   - Cert-manager. 
-   
-   This team is also responsible for the lifecycle management of the clusters, such as making sure that updates/upgrades are periodically performed on the cluster, its nodes, the Shared-Services running in it and that cluster configuration changes are seamlessly conducted as needed without impacting the applications.
-
-- ### The Security team
-   making sure that security is built into the pipeline and all components deployed are secured by default.
-
-   maintaining the 
-   - Azure Policies, 
-   - NSGs, 
-   - firewalls rules outside the cluster as well as all security related configuration within the AKS cluster, such as Kubernetes Network Policies, RBAC or authentication and authorization rules within a Service Mesh
-
-
-
-Each team will be responsible for maintaining their own automation pipeline. These pipelines access to Azure should only be granted through a Service Principal, a Managed Identity or preferably a Federated Identity with the minimum set of permissions required to automatically perform the tasks that the team is responsible for.
-
-
-
-Reference 
-
-hub spoke pattern for network 
-https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/hybrid-networking/hub-spoke?tabs=cli

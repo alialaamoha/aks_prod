@@ -69,7 +69,7 @@ variable "admin_ssh_public_key" {
 }
 
 
-variable "script_name" {
+variable "script_path" {
   description = "(Required) Specifies the name of the custom script."
   type        = string
 }

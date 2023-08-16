@@ -97,7 +97,7 @@ resource "azurerm_linux_virtual_machine" "virtual_machine" {
     sku       = lookup(var.os_disk_image, "sku", null)
     version   = lookup(var.os_disk_image, "version", null)
   }
-
+  
   boot_diagnostics {
     storage_account_uri = var.boot_diagnostics_storage_account == "" ? null : var.boot_diagnostics_storage_account
   }
@@ -113,6 +113,22 @@ resource "azurerm_linux_virtual_machine" "virtual_machine" {
     azurerm_network_security_group.nsg
   ]
 }
+
+  resource "azurerm_virtual_machine_extension" "custom_script" {
+  name                    = "${var.name}CustomScript"
+  virtual_machine_id      = azurerm_linux_virtual_machine.virtual_machine.id
+  publisher               = "Microsoft.Azure.Extensions"
+  type                    = "CustomScript"
+  type_handler_version    = "2.0"
+
+  settings = <<SETTINGS
+    {
+      "script": "${base64encode(file(var.script_path))}"
+    }
+  SETTINGS
+  }
+
+
 
 
 
