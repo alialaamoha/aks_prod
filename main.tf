@@ -11,6 +11,8 @@ data "azurerm_client_config" "current" {
 
 locals {
   storage_account_prefix = "store"
+  route_table_name       = "DefaultRouteTable"
+  route_name             = "RouteToAzureFirewall"
 }
 
 # reasource group for AKS Cluster 
@@ -230,6 +232,42 @@ module "acr_private_endpoint" {
   private_dns_zone_group_name = "AcrPrivateDnsZoneGroup"
   private_dns_zone_group_ids = [module.acr_private_dns_zone.id]
 }
+# firewall and route table
+module "firewall" {
+  source = "./modules/azurefirewall"
+  name = var.firewall_name
+  pip_name = "${var.firewall_name}-PublicIP"
+  resource_group_name = azurerm_resource_group.aks-rg.name
+  location = var.location
+  zones = var.firewall_zones
+  sku_name = var.firewall_sku_name
+  sku_tier = var.firewall_sku_tier
+  tags =  var.tags
+  subnet_id = module.hub_network.subnet_ids["AzureFirewallSubnet"]
+  threat_intel_mode = var.firewall_threat_intel_mode
+}
+
+
+module "routetable" {
+  source = "./modules/routetable"
+  resource_group_name = azurerm_resource_group.aks-rg.name
+  location = var.location
+  route_name = local.route_name
+  route_table_name = local.route_table_name
+  firewall_private_ip = module.firewall.private_ip_address
+  subnets_to_associate = {
+    (var.default_node_pool_subnet_name) = {
+     subscription_id = data.azurerm_client_config.current.subscription_id
+     resource_group_name = azurerm_resource_group.aks-rg.name
+     virtual_network_name = module.kube_network.name
+    }
+    (var.additional_node_pool_subnet_name) = {
+      subscription_id = data.azurerm_client_config.current.subscription_id
+     resource_group_name = azurerm_resource_group.aks-rg.name
+     virtual_network_name = module.kube_network.name
+    }
+  }
+}
 
 # aks
 module "aks_cluster" {
@@ -276,6 +314,9 @@ module "aks_cluster" {
   image_cleaner_enabled                    = var.image_cleaner_enabled
   azure_policy_enabled                     = var.azure_policy_enabled
   http_application_routing_enabled         = var.http_application_routing_enabled
+
+
+  depends_on = [ module.routetable ]
 }
 
 resource "azurerm_role_assignment" "network_contributor" {
@@ -290,4 +331,35 @@ resource "azurerm_role_assignment" "acr_pull" {
   scope                = module.acr_private_registry.id
   principal_id         = module.aks_cluster.kubelet_identity_object_id
   skip_service_principal_aad_check = true
+}
+
+module "blob_private_dns_zone" {
+  source                       = "./modules/privatednszone"
+  name                         = "privatelink.blob.core.windows.net"
+  resource_group_name          = azurerm_resource_group.aks-rg.name
+  virtual_networks_to_link     = {
+    (module.hub_network.name) = {
+      subscription_id = data.azurerm_client_config.current.subscription_id
+      resource_group_name = azurerm_resource_group.aks-rg.name
+    }
+    (module.kube_network.name) = {
+      subscription_id = data.azurerm_client_config.current.subscription_id
+      resource_group_name = azurerm_resource_group.aks-rg.name
+    }
+  }
+}
+
+
+module "blob_private_endpoint" {
+  source                         = "./modules/private_end_point"
+  name                           = "${title(module.storage_account.name)} -PrivateEndpoint"
+  location                       = var.location
+  resource_group_name            = azurerm_resource_group.aks-rg.name
+  subnet_id                      = module.kube_network.subnet_ids[var.jumbbox_subnet_name]
+  tags                           = var.tags
+  private_connection_resource_id = module.storage_account.id
+  is_manual_connection           = false
+  subresource_name               = "blob"
+  private_dns_zone_group_name    = "BlobPrivateDnsZoneGroup"
+  private_dns_zone_group_ids     = [module.blob_private_dns_zone.id]
 }

@@ -378,7 +378,7 @@ variable "default_node_pool_vm_size" {
 
 variable "default_node_pool_availability_zones" {
   description = "Specifies the availability zones of the default node pool"
-  default     = ["1"]
+  default     = []
   type        = list(string)
 }
 
@@ -489,7 +489,7 @@ variable "additional_node_pool_vm_size" {
 variable "additional_node_pool_availability_zones" {
   description = "(Optional) A list of Availability Zones where the Nodes in this Node Pool should be created in. Changing this forces a new resource to be created."
   type        = list(string)
-  default = ["1", "2", "3"]
+  default = ["0"]
 }
 
 variable "additional_node_pool_enable_auto_scaling" {
@@ -555,19 +555,19 @@ variable "additional_node_pool_priority" {
 variable "additional_node_pool_max_count" {
   description = "(Required) The maximum number of nodes which should exist within this Node Pool. Valid values are between 0 and 1000 and must be greater than or equal to min_count."
   type          = number
-  default       = 10
+  default       = 2
 }
 
 variable "additional_node_pool_min_count" {
   description = "(Required) The minimum number of nodes which should exist within this Node Pool. Valid values are between 0 and 1000 and must be less than or equal to max_count."
   type          = number
-  default       = 3
+  default       = 1
 }
 
 variable "additional_node_pool_node_count" {
   description = "(Optional) The initial number of nodes which should exist within this Node Pool. Valid values are between 0 and 1000 and must be a value in the range min_count - max_count."
   type          = number
-  default       = 3
+  default       = 1
 }
 
 variable "keda_enabled" {
@@ -622,7 +622,7 @@ variable "http_application_routing_enabled" {
 
 variable "firewall_name" {
   description = "Specifies the name of the Azure Firewall"
-  default     = "BaboFirewall"
+  default     = "DevshellFirewall"
   type        = string
 }
 
@@ -661,7 +661,7 @@ variable "firewall_threat_intel_mode" {
 
 variable "firewall_zones" {
   description = "Specifies the availability zones of the Azure Firewall"
-  default     = ["1", "2", "3"]
+  default     = ["0"]
   type        = list(string)
 }
 
