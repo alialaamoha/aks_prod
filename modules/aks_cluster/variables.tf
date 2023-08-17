@@ -259,7 +259,7 @@ variable "ssh_public_key" {
 variable "keda_enabled" {
   description = "(Optional) Specifies whether KEDA Autoscaler can be used for workloads."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "vertical_pod_autoscaler_enabled" {
@@ -283,7 +283,7 @@ variable "oidc_issuer_enabled" {
 variable "open_service_mesh_enabled" {
   description = "(Optional) Is Open Service Mesh enabled? For more details, please visit Open Service Mesh for AKS."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "image_cleaner_enabled" {

@@ -6,7 +6,7 @@ resource "azurerm_private_endpoint" "private_endpoint" {
   tags                = var.tags
 
   private_service_connection {
-    name                           = "${var.name}Connection"
+    name                           = "${var.name}_Connection"
     private_connection_resource_id = var.private_connection_resource_id
     is_manual_connection           = var.is_manual_connection
     subresource_names              = try([var.subresource_name], null)

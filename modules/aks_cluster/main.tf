@@ -29,8 +29,6 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
   sku_tier                         = var.sku_tier
   workload_identity_enabled        = var.workload_identity_enabled
   oidc_issuer_enabled              = var.oidc_issuer_enabled
-  open_service_mesh_enabled        = var.open_service_mesh_enabled
-  image_cleaner_enabled            = var.image_cleaner_enabled
   azure_policy_enabled             = var.azure_policy_enabled
   http_application_routing_enabled = var.http_application_routing_enabled
 
@@ -90,10 +88,6 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
     azure_rbac_enabled         = var.azure_rbac_enabled
   }
 
-  workload_autoscaler_profile {
-    keda_enabled                    = var.keda_enabled
-    vertical_pod_autoscaler_enabled = var.vertical_pod_autoscaler_enabled
-  }
 
   lifecycle {
     ignore_changes = [

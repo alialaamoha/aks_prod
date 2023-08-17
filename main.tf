@@ -2,12 +2,16 @@ provider "azurerm" {
   features {
 
   }
+  
+}
+provider "azuread" {
+  
 }
 
 data "azurerm_client_config" "current" {
 }
 
-
+data "azuread_client_config" "current" {}
 
 locals {
   storage_account_prefix = "store"
@@ -64,7 +68,7 @@ module "kube_network" {
     private_link_service_network_policies_enabled = false
 
   },{
-    name = var.additional_node_pool_name
+    name = var.additional_node_pool_subnet_name
     address_prefixes = var.additional_node_pool_subnet_address_prefix
     private_endpoint_network_policies_enabled = true
     private_link_service_network_policies_enabled = false
@@ -269,6 +273,12 @@ module "routetable" {
   }
 }
 
+
+module "kube_admin_group" {
+  source = "./modules/aad"
+  group_name = var.kube_admin
+}
+
 # aks
 module "aks_cluster" {
   source                                   = "./modules/aks_cluster"
@@ -302,21 +312,17 @@ module "aks_cluster" {
   network_service_cidr                     = var.network_service_cidr
   role_based_access_control_enabled        = var.role_based_access_control_enabled
   tenant_id                                = data.azurerm_client_config.current.tenant_id
-  admin_group_object_ids                   = var.admin_group_object_ids
+  admin_group_object_ids                   = [module.kube_admin_group.object_id]
   azure_rbac_enabled                       = var.azure_rbac_enabled
   admin_username                           = var.admin_username
   ssh_public_key                           = module.ssh_key.ssh_public_key
-  keda_enabled                             = var.keda_enabled
-  vertical_pod_autoscaler_enabled          = var.vertical_pod_autoscaler_enabled
   workload_identity_enabled                = var.workload_identity_enabled
-  oidc_issuer_enabled                      = var.oidc_issuer_enabled
-  open_service_mesh_enabled                = var.open_service_mesh_enabled
-  image_cleaner_enabled                    = var.image_cleaner_enabled
+  oidc_issuer_enabled =                    var.oidc_issuer_enabled
   azure_policy_enabled                     = var.azure_policy_enabled
   http_application_routing_enabled         = var.http_application_routing_enabled
 
 
-  depends_on = [ module.routetable ]
+  depends_on = [ module.routetable , module.kube_admin_group]
 }
 
 resource "azurerm_role_assignment" "network_contributor" {
@@ -352,7 +358,7 @@ module "blob_private_dns_zone" {
 
 module "blob_private_endpoint" {
   source                         = "./modules/private_end_point"
-  name                           = "${title(module.storage_account.name)} -PrivateEndpoint"
+  name                           = "${title(module.storage_account.name)}-PrivateEndpoint"
   location                       = var.location
   resource_group_name            = azurerm_resource_group.aks-rg.name
   subnet_id                      = module.kube_network.subnet_ids[var.jumbbox_subnet_name]
